@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import { useReducer, useState } from "react";
+import TodoItem from "./TodoItem";
 
+const ACTIONS={
+  ALLTODO:"alltodo",
+  COMPLETEDTODO:"completedtodo",
+  DELETETODO:"deletetodo"
+}
+
+const reducer = (todos,action)=>{
+  switch(action.type){
+    case ACTIONS.ALLTODO:
+      return [...todos, {todo:action.payload.todo, id:Date.now(), complete:false }];
+      case ACTIONS.COMPLETEDTODO:
+        return todos.map((todo)=>{
+               if(todo.id === action.payload.id){
+                 return {...todo, complete:!todo.complete}
+               }
+               return todo
+         });
+        case ACTIONS.DELETETODO:
+          return todos.filter((todo)=>todo.id !== action.payload.id)
+          default:
+            return todos;
+          }
+        }
+        
 function App() {
+  const [todo, setTodo] = useState("");
+  const [todos, dispatch] = useReducer(reducer, [])
+
+  const handleSubmit =(e)=>{
+    e.preventDefault();
+    dispatch({type:ACTIONS.ALLTODO, payload:{todo:todo}})
+    console.log(todo)
+    setTodo('')
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div classtodo="App">
+      <form onSubmit={handleSubmit}>
+      <input type="text" placeholder="todo..." value={todo} onChange={e=>setTodo(e.target.value)}/>
+      </form>
+     
+      {todos.map((todo)=>{
+        return <TodoItem key={todo.id} todo={todo} dispatch={dispatch} ACTIONS={ACTIONS}/>
+      })}
     </div>
   );
 }
